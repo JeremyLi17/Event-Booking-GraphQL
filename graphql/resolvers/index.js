@@ -23,6 +23,7 @@ const events = async (eventIds) => {
     return res.map((event) => {
       return {
         ...event._doc,
+        date: new Date(event._doc.date).toISOString(),
         creator: user.bind(this, event._doc.creator),
       };
     });
@@ -43,6 +44,7 @@ export default {
       return res.map((event) => {
         return {
           ...event._doc,
+          date: new Date(event._doc.date).toISOString(),
           creator: user.bind(this, event._doc.creator),
         };
         // return { ...event._doc, _id: event._doc._id.toString() };
@@ -79,7 +81,11 @@ export default {
 
       creator.createdEvents.push(event);
       await creator.save();
-      return { ...res._doc, creator: user.bind(this, res._doc.creator) };
+      return {
+        ...res._doc,
+        date: new Date(res._doc.date).toISOString(),
+        creator: user.bind(this, res._doc.creator),
+      };
     } catch (err) {
       console.log(err);
       throw err;
@@ -99,12 +105,12 @@ export default {
   },
   createUser: async (args) => {
     try {
-      const userByEmail = User.findOne({ email: args.userInput.email });
+      const userByEmail = await User.findOne({ email: args.userInput.email });
       if (userByEmail) {
         throw new Error('Email used already.');
       }
 
-      const hashedPassword = bcrypt.hashSync(args.userInput.password, 12);
+      const hashedPassword = await bcrypt.hash(args.userInput.password, 12);
       const user = new User({
         email: args.userInput.email,
         password: hashedPassword,
