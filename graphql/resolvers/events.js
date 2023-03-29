@@ -1,4 +1,5 @@
 import Event from '../../models/event.js';
+import User from '../../models/user.js';
 import { transformEvent } from './merge.js';
 
 export default {
@@ -18,7 +19,10 @@ export default {
       throw err;
     }
   },
-  createEvent: async (args) => {
+  createEvent: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
     // const event = {
     //   _id: Math.random().toString(),
     //   title: args.eventInput.title,
@@ -33,12 +37,12 @@ export default {
       // to convert to number just add '+' in the front
       price: +args.eventInput.price,
       date: new Date(args.eventInput.date),
-      creator: '641e10412714b78946edb9a1',
+      creator: req.userId,
     });
 
     try {
       const res = await event.save();
-      const creator = await User.findById('641e10412714b78946edb9a1');
+      const creator = await User.findById(req.userId);
       if (!creator) {
         throw new Error('User not found.');
       }

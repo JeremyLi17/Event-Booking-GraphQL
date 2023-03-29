@@ -4,7 +4,11 @@ import { transformEvent, transformBooking } from './merge.js';
 
 export default {
   // have all resolver function
-  bookings: async () => {
+  bookings: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
+
     try {
       const res = await Booking.find();
       return res.map((booking) => {
@@ -15,17 +19,25 @@ export default {
       throw err;
     }
   },
-  bookEvent: async (args) => {
+  bookEvent: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
+
     const fetchedEvent = await Event.findById(args.eventId);
     const booking = new Booking({
-      user: '641e10412714b78946edb9a1',
+      user: req.userId,
       event: fetchedEvent,
     });
 
     const res = await booking.save();
     return transformBooking(res);
   },
-  cancelBooking: async (args) => {
+  cancelBooking: async (args, req) => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated!');
+    }
+
     try {
       const booking = await Booking.findById(args.bookingId).populate('event');
       if (!booking) {

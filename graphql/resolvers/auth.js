@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 import User from '../../models/user.js';
 
@@ -41,5 +42,27 @@ export default {
     //     console.log(err);
     //     throw err;
     //   });
+  },
+  login: async ({ email, password }) => {
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error('Invalid credential');
+    }
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      throw new Error('Invalid credential');
+    }
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+      },
+      process.env.SECRET,
+      {
+        expiresIn: '1h',
+      }
+    );
+    return { userId: user.id, token: token, tokenExpiration: 1 };
   },
 };

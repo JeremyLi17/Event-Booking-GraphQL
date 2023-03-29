@@ -2,13 +2,17 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { graphqlHTTP } from 'express-graphql';
 import mongoose from 'mongoose';
+import isAuth from './middleware/isAuth.js';
 
 import graphQlSchema from './graphql/schema/index.js';
 import graphQlResolver from './graphql/resolvers/index.js';
 
 const app = express();
 
+// middlewares
 app.use(bodyParser.json());
+app.use(isAuth);
+
 app.use(
   '/graphql',
   graphqlHTTP({
