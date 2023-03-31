@@ -1,0 +1,43 @@
+.main-navigation {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 3.5rem;
+  background: rgb(0, 197, 201);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.main-navigation_logo h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.main-navigation_items {
+  margin-left: 1.5rem;
+}
+
+.main-navigation_items ul {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  list-style: none;
+}
+
+.main-navigation_items li {
+  margin: 0 1rem;
+}
+
+.main-navigation_items a {
+  /* You cannot directly sperify the NavLink here */
+  text-decoration: none;
+  color: rgb(251, 251, 251);
+}
+
+.main-navigation_items a:hover,
+.main-navigation_items a:active,
+.main-navigation_items a.active {
+  color: rgb(255, 234, 117);
+}
