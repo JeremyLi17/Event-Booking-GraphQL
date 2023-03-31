@@ -11,6 +11,18 @@ const app = express();
 
 // middlewares
 app.use(bodyParser.json());
+// allow CORS
+app.use((req, res, next) => {
+  // every host can send request to this server
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 app.use(isAuth);
 
 app.use(
