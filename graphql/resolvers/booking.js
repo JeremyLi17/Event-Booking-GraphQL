@@ -10,7 +10,7 @@ export default {
     }
 
     try {
-      const res = await Booking.find();
+      const res = await Booking.find({ user: req.userId });
       return res.map((booking) => {
         return transformBooking(booking);
       });

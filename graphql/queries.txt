@@ -1,0 +1,77 @@
+Some Queries in GraphQL
+
+# query {
+#   events {
+#     date
+#     creator {
+#       email
+#       createdEvents {
+#         title
+#       }
+#     }
+#   }
+# }
+
+# mutation {
+#   createEvent(eventInput: {
+#     title: "Should not work",
+#     description: "I will get an offer!",
+#     price: 520.00,
+#     date: "2023-03-29T10:20:10.000Z"
+#   }) {
+#     title
+#     _id
+#   }
+# }
+
+# mutation {
+#   createUser(
+#     userInput: {
+#     	email: "test2@test.com",
+#     	password: "password"
+#   	}) 
+#   {
+#     email
+#     password
+#   }
+# }
+
+# mutation {
+#   bookEvent(eventId: "64249207f37fc822ad8413eb") {
+#     _id
+#     event {
+#       title
+#     }
+#     user {
+#       email
+#     }
+#   }
+# }
+
+# query {
+#   bookings {
+#     _id
+#     event {
+#       title
+#     }
+#     updatedAt
+#   }
+# }
+
+# mutation {
+#   cancelBooking(bookingId: "64249291f37fc822cd8413f6") {
+#     title
+#     description
+#     creator {
+#       email
+#     }
+#   }
+# }
+
+# query {
+#   login(email: "test@test.com", password: "password") {
+#     userId
+#     token
+#     tokenExpiration
+#   }
+# }
