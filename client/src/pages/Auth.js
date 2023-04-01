@@ -1,11 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 
 import './Auth.css';
+import AuthContext from '../context/auth-context';
 
 const AuthPage = () => {
   const emailRef = useRef('');
   const passwordRef = useRef('');
   const [isLogin, setIsLogin] = useState(true);
+  const userContext = useContext(AuthContext);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -65,7 +67,14 @@ const AuthPage = () => {
       }
 
       const userData = await res.json();
-      console.log(userData);
+
+      if (isLogin && userData.data.login.token) {
+        userContext.login(
+          userData.data.login.token,
+          userData.data.login.userId,
+          userData.data.login.tokenExpiration
+        );
+      }
     } catch (err) {
       console.log(err);
       throw err;
