@@ -38,12 +38,17 @@ const EventsPage = () => {
     // send to backend
     const requestBody = {
       query: `
-        mutation {
+        mutation CreateEvent(
+          $title: String!, 
+          $price: Float!,
+          $date: String!,
+          $desc: String!
+        ) {
           createEvent(eventInput: {
-            title: "${title}",
-            price: ${price},
-            date: "${date}",
-            description: "${desc}"
+            title: $title,
+            price: $price,
+            date: $date,
+            description: $desc
           }) {
             _id
             title
@@ -53,6 +58,12 @@ const EventsPage = () => {
           }
         }
       `,
+      variables: {
+        title: title,
+        price: price,
+        date: date,
+        desc: desc,
+      },
     };
 
     const token = userContext.token;
@@ -158,14 +169,17 @@ const EventsPage = () => {
 
     const requestBody = {
       query: `
-        mutation {
-          bookEvent(eventId: "${selectedEvent._id}") {
+        mutation BookEvent($id: ID!) {
+          bookEvent(eventId: $id) {
             _id
             createdAt
             updatedAt
           }
         }
       `,
+      variables: {
+        id: selectedEvent._id,
+      },
     };
 
     try {

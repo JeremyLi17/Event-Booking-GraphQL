@@ -61,13 +61,16 @@ const BookingsPage = () => {
     setIsLoading(true);
     const requestBody = {
       query: `
-          mutation {
-            cancelBooking(bookingId: "${bookingId}") {
-              _id
-              title
-            }
+        mutation CancelBooking($id: ID!) {
+          cancelBooking(bookingId: $id) {
+            _id
+            title
           }
-        `,
+        }
+      `,
+      variables: {
+        id: bookingId,
+      },
     };
 
     try {

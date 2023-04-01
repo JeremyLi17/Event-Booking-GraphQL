@@ -21,11 +21,25 @@ const AuthPage = () => {
 
     // send to backend
     let requestBody = {
+      // approach 1, inject the variable directly into the query
+      // query: `
+      //   query {
+      //     login(
+      //       email: "${email}",
+      //       password: "${password}"
+      //     ) {
+      //       userId
+      //       token
+      //       tokenExpiration
+      //     }
+      //   }
+      // `,
+
       query: `
-        query {
+        query Login($email: String!, $password: String!) {
           login(
-            email: "${email}",
-            password: "${password}"
+            email: $email,
+            password: $password
           ) {
             userId
             token
@@ -33,21 +47,29 @@ const AuthPage = () => {
           }
         }
       `,
+      variables: {
+        email: email,
+        password: password,
+      },
     };
 
     if (!isLogin) {
       requestBody = {
         query: `
-          mutation {
+          mutation CreateUser($email: String!, $password: String!) {
             createUser(userInput: {
-              email: "${email}",
-              password: "${password}"
+              email: $email,
+              password: $password
             }) {
               _id
               email
             }
           }
         `,
+        variables: {
+          email: email,
+          password: password,
+        },
       };
     }
 
