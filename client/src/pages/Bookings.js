@@ -55,7 +55,7 @@ const BookingsPage = () => {
       }
     };
     fetchBookings();
-  }, [userContext]);
+  }, [token]);
 
   const deleteBookingHandler = async (bookingId) => {
     setIsLoading(true);

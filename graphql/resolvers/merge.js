@@ -1,14 +1,25 @@
+import DataLoader from 'dataloader';
+
 import Event from '../../models/event.js';
 import User from '../../models/user.js';
 import { dateToString } from '../../helpers/date.js';
 
+const eventLoader = new DataLoader((eventIds) => {
+  return events(eventIds);
+});
+
+const userLoader = new DataLoader((userIds) => {
+  return User.find({ _id: { $in: userIds } });
+});
+
 // find user by userId
 const user = async (userId) => {
   try {
-    const res = await User.findById(userId);
+    const res = await userLoader.load(userId.toString());
     return {
       ...res._doc,
-      createdEvents: events.bind(this, res._doc.createdEvents),
+      // createdEvents: events.bind(this, res._doc.createdEvents),
+      createdEvents: () => eventLoader.loadMany(res._doc.createdEvents),
     };
   } catch (err) {
     console.log(err);
@@ -18,8 +29,9 @@ const user = async (userId) => {
 
 const singleEvent = async (eventId) => {
   try {
-    const event = await Event.findById(eventId);
-    return transformEvent(event);
+    // const event = await Event.findById(eventId);
+    const event = await eventLoader.load(eventId.toString());
+    return event;
   } catch (err) {
     console.log(err);
     throw err;
