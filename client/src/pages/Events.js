@@ -3,6 +3,8 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import Modal from '../components/Modal/Modal';
 import Backdrop from '../components/Backdrop/Backdrop';
 import AuthContext from '../context/auth-context';
+import EventList from '../components/Events/EventList/EventList';
+import Spinner from '../components/Spinner/Spinner';
 import './Events.css';
 
 const EventsPage = () => {
@@ -11,7 +13,9 @@ const EventsPage = () => {
   const dateRef = useRef();
   const descRef = useRef();
   const [creating, setCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState([]);
+  const [selectedEvent, setSeletedEvent] = useState(null);
   const userContext = useContext(AuthContext);
 
   const modalConfirm = async () => {
@@ -29,7 +33,7 @@ const EventsPage = () => {
     ) {
       return;
     }
-    console.log({ title, price, date, description: desc });
+    // console.log({ title, price, date, description: desc });
 
     // send to backend
     const requestBody = {
@@ -46,10 +50,6 @@ const EventsPage = () => {
             description
             date
             price
-            creator {
-              _id
-              email
-            }
           }
         }
       `,
@@ -72,9 +72,19 @@ const EventsPage = () => {
       }
 
       const resData = await res.json();
-
-      console.log(resData);
-      await fetchEvents();
+      // push into event list
+      const updatedEvents = [...events];
+      updatedEvents.push({
+        _id: resData.data.createEvent._id,
+        title: resData.data.createEvent.title,
+        description: resData.data.createEvent.description,
+        date: resData.data.createEvent.date,
+        price: resData.data.createEvent.price,
+        creator: {
+          _id: userContext.userId,
+        },
+      });
+      setEvents(updatedEvents);
     } catch (err) {
       console.log(err);
       throw err;
@@ -83,56 +93,67 @@ const EventsPage = () => {
 
   const modalCancel = () => {
     setCreating(false);
-  };
-
-  const fetchEvents = async () => {
-    const requestBody = {
-      query: `
-        query {
-          events {
-            _id
-            title
-            description
-            date
-            price
-            creator {
-              _id
-              email
-            }
-          }
-        }
-      `,
-    };
-
-    try {
-      const res = await fetch('http://localhost:8800/graphql', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (res.status !== 200 && res.status !== 201) {
-        throw new Error('Failed!');
-      }
-
-      const resData = await res.json();
-      const eventsList = resData.data.events;
-      setEvents(eventsList);
-    } catch (err) {
-      console.log(err);
-      throw err;
-    }
+    setSeletedEvent(null);
   };
 
   useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoading(true);
+      const requestBody = {
+        query: `
+          query {
+            events {
+              _id
+              title
+              description
+              date
+              price
+              creator {
+                _id
+              }
+            }
+          }
+        `,
+      };
+
+      try {
+        const res = await fetch('http://localhost:8800/graphql', {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error('Failed!');
+        }
+
+        const resData = await res.json();
+        const eventsList = resData.data.events;
+
+        setEvents(eventsList);
+        setIsLoading(false);
+      } catch (err) {
+        console.log(err);
+        setIsLoading(false);
+        throw err;
+      }
+    };
     fetchEvents();
   }, []);
 
+  const showDetailHandler = (eventId) => {
+    const selected = events.find((e) => e._id === eventId);
+    setSeletedEvent(selected);
+  };
+
+  const bookEventHandler = async () => {};
+
   return (
     <>
-      {creating && <Backdrop />}
+      {(creating || selectedEvent) && <Backdrop />}
+      {/* this is for upload new event */}
       {creating && (
         <Modal
           title="Add Event"
@@ -140,6 +161,7 @@ const EventsPage = () => {
           canConfirm
           onConfirm={modalConfirm}
           onCancel={modalCancel}
+          confirmText="Confirm"
         >
           <form>
             <div className="form-control">
@@ -162,6 +184,24 @@ const EventsPage = () => {
           </form>
         </Modal>
       )}
+      {/* this is for view detail */}
+      {selectedEvent && (
+        <Modal
+          title={selectedEvent.title}
+          canCancel
+          canConfirm
+          onCancel={modalCancel}
+          onConfirm={bookEventHandler}
+          confirmText="Book"
+        >
+          <h1>{selectedEvent.title}</h1>
+          <h2>
+            ${selectedEvent.price} -{' '}
+            {new Date(selectedEvent.date).toLocaleDateString()}
+          </h2>
+          <p>{selectedEvent.description}</p>
+        </Modal>
+      )}
       {userContext.token && (
         <div className="events-control">
           <p>Share your own Events!</p>
@@ -170,15 +210,15 @@ const EventsPage = () => {
           </button>
         </div>
       )}
-      <ul className="events-list">
-        {events.map((event) => {
-          return (
-            <li className="events-list-item" key={event._id}>
-              {event.title}
-            </li>
-          );
-        })}
-      </ul>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <EventList
+          events={events}
+          authUserId={userContext.userId}
+          onViewDetail={showDetailHandler}
+        />
+      )}
     </>
   );
 };
