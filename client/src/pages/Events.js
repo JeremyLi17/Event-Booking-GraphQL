@@ -141,7 +141,7 @@ const EventsPage = () => {
       }
     };
     fetchEvents();
-  }, []);
+  }, [userContext]);
 
   const showDetailHandler = (eventId) => {
     const selected = events.find((e) => e._id === eventId);
