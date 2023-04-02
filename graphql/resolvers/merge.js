@@ -42,6 +42,11 @@ const singleEvent = async (eventId) => {
 const events = async (eventIds) => {
   try {
     const res = await Event.find({ _id: { $in: eventIds } });
+    res.sort((a, b) => {
+      return (
+        eventIds.indexOf(a._id.toString()) - eventIds.indexOf(b._id.toString())
+      );
+    });
     return res.map((event) => {
       return transformEvent(event);
     });
