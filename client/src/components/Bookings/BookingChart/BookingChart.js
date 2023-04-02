@@ -51,7 +51,10 @@ const BookingChart = (props) => {
     <div style={{ textAlign: 'center' }}>Loading ...</div>
   ) : (
     <div style={{ textAlign: 'center' }}>
-      <BarChart data={data} />
+      <BarChart
+        data={data}
+        style={{ height: '40vh', width: '40rem', maxWidth: '90%' }}
+      />
     </div>
   );
 };
