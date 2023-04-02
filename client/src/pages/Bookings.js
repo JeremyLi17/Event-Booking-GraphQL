@@ -2,11 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import Spinner from '../components/Spinner/Spinner';
 import BookingList from '../components/Bookings/BookingList/BookingList';
+import BookingChart from '../components/Bookings/BookingChart/BookingChart';
+import BookingControl from '../components/Bookings/BookingControl/BookingControl';
 import AuthContext from '../context/auth-context';
 
 const BookingsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [bookings, setBookings] = useState([]);
+  const [outputType, setOutputType] = useState('list');
   const userContext = useContext(AuthContext);
   const token = userContext.token;
 
@@ -23,6 +26,7 @@ const BookingsPage = () => {
                 _id
                 title
                 date
+                price
               }
             }
           }
@@ -99,12 +103,33 @@ const BookingsPage = () => {
     }
   };
 
+  const onClickButton = (type) => {
+    if (type === 'list' || type === 'chart') {
+      setOutputType(type);
+    }
+  };
+
   return (
     <>
       {isLoading ? (
         <Spinner />
       ) : (
-        <BookingList bookings={bookings} onDelete={deleteBookingHandler} />
+        <>
+          <BookingControl
+            outputType={outputType}
+            onClickButton={onClickButton}
+          />
+          <div>
+            {outputType === 'list' ? (
+              <BookingList
+                bookings={bookings}
+                onDelete={deleteBookingHandler}
+              />
+            ) : (
+              <BookingChart bookings={bookings} />
+            )}
+          </div>
+        </>
       )}
     </>
   );
